@@ -1,3 +1,5 @@
+# Quickstart
+----------
 ## Main concepts
 이 library는 각 model을 위한 class들은 세 가지 type으로 구성되어 있다.
 * model classes : 예를 들어 BertModel은 해당 library에서 제공하는 선 학습 된 weight들과 20가지 이상의 pytorch model들로 구성되어 있다.
@@ -90,5 +92,76 @@ predicted_token = tokenizer.convert_ids_to_tokens([predicted_index])[0]
 assert predicted_token == 'henson'
 ```
 ### OpenAI GPT-2 example
+첫 번째로 GPT2Tokenizer를 사용해 text에서 tokenize된 input을 준비해야 한다.
+```python
+import torch
+from transformers impor tGPT2Tokenizer, GPT2LMHeadModel
+
+# OPTIONAL
+import logging
+logging.basicConfig(level = logging.INFO)
+
+# pre-train된 model tokenizer를 불러온다 (vocabulary)
+tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+
+# text input들을 Encode한다.
+text = "Who was Jim Henson ? Jim Henson was a"
+indexed_tokens = tokenizer.encode(text)
+
+# index화 된 token들을 Pytorch tensor로 변환한다.
+tokens_tensor = torch.tensor([indexed_tokens])
+```
+주어진 text 뒤에 오는 token들을 생성하기 위해 GPT2LMHeadModel을 사용하는 방법을 알아볼 것이다.
+
+```python
+# pre-train model을 불러온다 (weights)
+model = GPT2LMHeadModel.from_pretrained('gpt2')
+
+# DropOut module들을 비활성화 하기 위해 evaluation mode로 설정한다.
+# 이는 evaluation 동안 재현 가능한 결과를 가지는데 매우 중요하다.
+model.eval()
+
+# 만약 GPU를 가지고 있다면, 모든 것을 cuda에 적재한다.
+tokens_tensor = tokens_tensor.to('cuda')
+model.to('cuda')
+
+# 모든 token들을 예측한다.
+with torch.no_grad():
+    outputs = model(tokens_tensor)
+    predictions = outputs[0]
+
+# 다음 sub-word를 예측한다 (우리의 경우, 단어는 'man')
+predicted_index = torch.argmax(predictions[0, -1, :]).item()
+predicted_text = tokenizer.decode(indexed_tokens + [predicted_index])
+assert predicted_text == 'Who was Jim Henson? Jim Henson was a man'
+```
+
+### Using the past
+GPT-2와 이와 유사한 model들은 **part** 또는 **mems**라는 attribute가 만들어져 있다. 이는 sequential decoding을 사용할 때 key/value 쌍을 재학습하는 것을 막는데 사용된다. 이는 attention mechanism의 큰 부분으로 sequence를 생성할 때 이전 계산에서 이점을 얻을 때 유용하다.
+```python
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+import torch
+
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+model = GPT2LMHeadModel.from_pretrained('gpt2')
+
+generated = tokenizer.encode("The Manhattan brudge")
+context = torch.tensor([generated])
+past = None
+
+for i in range(100):
+    print(i)
+    output, past = model(context, past = past)
+    token = torch.argmax(output[..., -1, :])
+
+    generated += [token.tolist()]
+    context = token.unsqeeze(0)
+
+sequence = tokenizer.decode(generated)
+
+print(sequence)
+```
+이전 token의 모든 key/value 쌍이 **past**에 포함되어 있기에 model에는 입력으로 단일 token만을 필요로 한다.
+ 
 
 
