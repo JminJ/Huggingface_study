@@ -30,5 +30,12 @@
 * tie_encoder_decoder(bool, *optional*, defaults to False) - 모든 encoder weight들이 그들의 동일한 decoder weight들에 연결해야 하는지 여부. 이는 encoder와 decoder에 완벽히 동일한 parameter 이름들을 요구한다.
 * prune_heads(Dict[int, Lists[int]], *optional*, defaults to {}) - model의 Pruned head들. key들은 선택한 layer index 및 관련 값, 해당 layer에서 prune할 head 목록이다.
 * chunk_size_feed_forward(int, *optional*, defaults to 0) - resudial attention block 안의 feed forward layer의 chunk size. chunk siae가 0일 때의 의미는 feed forward layer가 chunk를 수행하지 않는다는 의미다. 
- 
+**sequence 생성을 위한 parameter들**
+* max_length(int, *optional*, defaults to 20) - model의 generate method에서 기본으로 사용될 최대 길이
+* min_length(int, *optional*, defaults to 10) - model의 generate method에서 기본으로 사용될 최소 길이
+* do_sample(bool, *optional*, defaults to False) - model의 generate method에서 기본적으로 사용될 Flag. sampling을 사용할지 말지를 결정 ; 다른 경우는 greedy decoding을 사용한다.
+* early_stopping(bool, *optional*, defaults to False) - model의 generate method에서 기본적으로 사용될 Flag. beam search를 배치 당 최소 num_beams 문장들이 완료되면 beam search를 중지할지 여부.
+* num_beams(int, *optional*, defaults to 1) - model의 generate method에서 기본적으로 사용되는 bean search를 위한 beam들의 수. 1은 beam search를 사용하지 않는 다는 뜻과 같다.
+* num_beam_groups(int, *optional*, defaults to 1) - 
+
 
