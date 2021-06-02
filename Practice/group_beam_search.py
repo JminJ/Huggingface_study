@@ -40,3 +40,6 @@ logits_processor = LogitsProcessorList([
     HammingDiversityLogitsProcessor(5.5, num_beams = 6, num_beam_group = 3),
     MinLengthLogitsProcessor(5, eos_token_id = model.config.eos_token_id),
 ])
+
+outputs = model.group_beam_search(input_ids, beam_scorer, logits_processor = logits_processor, **model_kwargs)
+print('Generated:', tokenizer.batch_decode(outputs, skip_special_tokens = True))
