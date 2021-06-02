@@ -40,4 +40,3 @@ logits_processor = LogitsProcessorList([
     HammingDiversityLogitsProcessor(5.5, num_beams = 6, num_beam_group = 3),
     MinLengthLogitsProcessor(5, eos_token_id = model.config.eos_token_id),
 ])
-
